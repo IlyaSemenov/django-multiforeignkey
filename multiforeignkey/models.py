@@ -33,6 +33,8 @@ class MultiForeignKey(object):
 
 	subfield_class = models.ForeignKey
 
+	attname = None  # for django.db.models.query::_extract_model_params
+
 	def __init__(self, *args):
 		if not args:
 			raise ValueError("Provide at least one model")
