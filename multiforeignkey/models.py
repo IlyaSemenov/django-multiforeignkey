@@ -23,18 +23,21 @@ class MultiForeignKey(object):
 	hidden = False
 
 	is_relation = True
+	related_model = None
+	remote_field = None
+
 	many_to_many = False
 	many_to_one = True
 	one_to_many = False
 	one_to_one = False
-	related_model = None
-	remote_field = None
+
+	subfield_class = models.ForeignKey
 
 	def __init__(self, *args):
 		if not args:
 			raise ValueError("Provide at least one model")
 		self.subfields = {
-			model._meta.model_name: models.ForeignKey(model, null=True)
+			model._meta.model_name: self.subfield_class(model, null=True)
 			for model in args
 		}
 		self.editable = False
@@ -107,3 +110,12 @@ class MultiForeignKey(object):
 				raise ValueError("{} must be one of: {}".format(self.name, ", ".join(model.__name__ for model in allowed_models)))
 			for subname, subfield in self.subfields.items():
 				setattr(instance, subname, value if isinstance(value, subfield.model) else None)
+
+
+class MultiOneToToneField(MultiForeignKey):
+	many_to_many = False
+	many_to_one = False
+	one_to_many = False
+	one_to_one = True
+
+	subfield_class = models.OneToOneField
